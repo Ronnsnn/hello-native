@@ -18,12 +18,14 @@ const PatientListItem = ({
         <Pressable
           style={[styles.btn, styles.btnEdit]}
           onPress={() => {
-            editPatient(id)
+            editPatient(id);
             setModalVisible(true);
           }}>
           <Text style={styles.btnText}>Editar</Text>
         </Pressable>
-        <Pressable style={[styles.btn, styles.btnDelete]}>
+        <Pressable
+          onPress={() => deletePatient(id)}
+          style={[styles.btn, styles.btnDelete]}>
           <Text style={styles.btnText}>Eliminar</Text>
         </Pressable>
       </View>

@@ -8,6 +8,7 @@
 
 import React, {useState} from 'react';
 import {
+  Alert,
   FlatList,
   Pressable,
   SafeAreaView,
@@ -24,14 +25,25 @@ const App = () => {
 
   const editPatient = id => {
     const patient = patientDates.find(p => p.id === id);
-    console.log(patient);
     setPatientDate(patient);
   };
 
   const deletePatient = id => {
-    const patient = patientDates.filter(p => p.id === id);
-    console.log(patient);
-    setPatientDate(patient);
+    const patient = patientDates.find(p => p.id === id);
+    Alert.alert(
+      `¿Desea eliminar ${patient.patient}?`,
+      'La acción no podrá revertirse',
+      [
+        {text: 'Cancelar'},
+        {
+          text: 'Sí',
+          onPress: () => {
+            const updatedPatientDates = patientDates.filter(p => p.id !== id);
+            setPatientDates(updatedPatientDates);
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -58,16 +70,18 @@ const App = () => {
               item={item}
               setModalVisible={setModalVisible}
               editPatient={editPatient}
+              deletePatient={deletePatient}
             />
           )}
         />
       )}
       <DateForm
         visible={modalVisible}
-        setVisible={setModalVisible}
+        setModalVisible={setModalVisible}
         patientDates={patientDates}
         setPatientDates={setPatientDates}
         patientDate={patientDate}
+        setPatientDate={setPatientDate}
       />
     </SafeAreaView>
   );

@@ -13,11 +13,13 @@ import TextField from './common/TextField';
 
 const DateForm = ({
   visible,
-  setVisible,
+  setModalVisible,
   patientDates,
   setPatientDates,
   patientDate,
+  setPatientDate,
 }) => {
+  const [id, setId] = useState('');
   const [patient, setPatient] = useState('');
   const [owner, setOwner] = useState('');
   const [email, setEmail] = useState('');
@@ -26,7 +28,8 @@ const DateForm = ({
   const [symptoms, setSymptoms] = useState('');
 
   useEffect(() => {
-    if (patientDate) {
+    if (patientDate.id) {
+      setId(patientDate.id);
       setPatient(patientDate.patient);
       setOwner(patientDate.owner);
       setEmail(patientDate.email);
@@ -34,11 +37,9 @@ const DateForm = ({
       setDate(new Date(patientDate.date));
       setSymptoms(patientDate.symptoms);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [patientDate]);
 
-  const handleCita = () => {
-    // Validar
+  const handleSubmit = () => {
     if ([patient, owner, email, phone, date, symptoms].includes('')) {
       Alert.alert('Error', 'Todos los campos son obligatorios', [
         {text: 'Cancelar', style: 'cancel'},
@@ -55,24 +56,39 @@ const DateForm = ({
       symptoms,
     };
 
-    setPatientDates([...patientDates, newPatientDate]);
+    if (id) {
+      //edit
+      const updatedPatientDates = patientDates.map(pd =>
+        pd.id === id ? {id, ...newPatientDate} : pd,
+      );
+      setPatientDates(updatedPatientDates);
+      setPatientDate({});
+    } else {
+      //new
+      newPatientDate.id = Date.now();
+      setPatientDates([...patientDates, newPatientDate]);
+    }
+
+    setId('');
     setPatient('');
     setOwner('');
     setEmail('');
     setPhone('');
     setSymptoms('');
-    setVisible(false);
+    setModalVisible(false);
   };
 
   return (
     <Modal animationType="slide" visible={visible}>
       <SafeAreaView style={styles.contenido}>
         <ScrollView>
-          <Text style={styles.titulo}>Nueva Cita</Text>
+          <Text style={styles.titulo}>
+            {patientDate.id ? 'Editar' : 'Nueva'} Cita
+          </Text>
 
           <Pressable
             style={styles.btnCancelar}
-            onPress={() => setVisible(false)}>
+            onPress={() => setModalVisible(false)}>
             <Text style={styles.btnCancelText}>X Cancelar</Text>
           </Pressable>
 
@@ -118,8 +134,8 @@ const DateForm = ({
             numberOfLines={3}
           />
 
-          <Pressable style={styles.btnNewDate} onPress={() => handleCita()}>
-            <Text style={styles.btnNewDateText}>Enviar</Text>
+          <Pressable style={styles.btnNewDate} onPress={handleSubmit}>
+            <Text style={styles.btnNewDateText}>Agregar paciente</Text>
           </Pressable>
         </ScrollView>
       </SafeAreaView>
