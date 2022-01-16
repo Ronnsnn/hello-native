@@ -15,7 +15,7 @@ const DateForm = ({
   visible,
   setModalVisible,
   patientDates,
-  setPatientDates,
+  editPatientDates,
   patientDate,
   setPatientDate,
 }) => {
@@ -61,12 +61,12 @@ const DateForm = ({
       const updatedPatientDates = patientDates.map(pd =>
         pd.id === id ? {id, ...newPatientDate} : pd,
       );
-      setPatientDates(updatedPatientDates);
+      editPatientDates(updatedPatientDates);
       setPatientDate({});
     } else {
       //new
       newPatientDate.id = Date.now();
-      setPatientDates([...patientDates, newPatientDate]);
+      editPatientDates([...patientDates, newPatientDate]);
     }
 
     setId('');

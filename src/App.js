@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Alert,
   FlatList,
@@ -17,11 +17,22 @@ import {
 } from 'react-native';
 import PatientListItem from './components/common/PatientListItem';
 import DateForm from './components/DateForm';
+import Asyncstorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [patientDates, setPatientDates] = useState([]);
   const [patientDate, setPatientDate] = useState({});
+
+  const editPatientDates = async newPatientsDates => {
+    try {
+      const patientsJSON = JSON.stringify(newPatientsDates);
+      await Asyncstorage.setItem('patients', patientsJSON);
+      setPatientDates(newPatientsDates);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
   const editPatient = id => {
     const patient = patientDates.find(p => p.id === id);
@@ -39,12 +50,26 @@ const App = () => {
           text: 'Sí',
           onPress: () => {
             const updatedPatientDates = patientDates.filter(p => p.id !== id);
-            setPatientDates(updatedPatientDates);
+            editPatientDates(updatedPatientDates);
           },
         },
       ],
     );
   };
+
+  useEffect(() => {
+    const getDatesFromStorage = async () => {
+      try {
+        const patientStorage = await Asyncstorage.getItem('patients');
+        if (patientStorage) {
+          setPatientDates(JSON.parse(patientStorage));
+        }
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    getDatesFromStorage();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -79,7 +104,7 @@ const App = () => {
         visible={modalVisible}
         setModalVisible={setModalVisible}
         patientDates={patientDates}
-        setPatientDates={setPatientDates}
+        editPatientDates={editPatientDates}
         patientDate={patientDate}
         setPatientDate={setPatientDate}
       />
